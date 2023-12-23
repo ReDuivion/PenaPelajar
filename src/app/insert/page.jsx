@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { supabase } from "../config/supabase";
+import Berhasil from "../components/Toast/Berhasil";
+import MainNavbar from "../components/MainNavbar";
 
 
 const AddRowForm = () => {
@@ -102,6 +104,7 @@ const AddRowForm = () => {
 
   return (
     <>
+    <Berhasil/>
       <form onSubmit={handleSubmit}>
         <label>
           Nama User:
