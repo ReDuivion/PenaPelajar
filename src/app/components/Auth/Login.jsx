@@ -1,14 +1,16 @@
 'use client'
-import React, { useState } from "react";
-import { supabase } from "../../config/supabase.js";
-import { redirect } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// Ensure to use 'useRouter' from 'next/navigation'
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { supabase } from '../../config/supabase';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
+  const router = useRouter(); // Use 'useRouter' from 'next/navigation'
   const [getUser, setGetUser] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
   const [isSubmit, setIsSubmit] = useState(false);
 
@@ -16,7 +18,7 @@ const Login = () => {
     e.preventDefault();
 
     if (getUser.password !== getUser.password) {
-      toast.error("GAGAL");
+      toast.error('GAGAL');
       setIsSubmit(false);
       return;
     }
@@ -28,13 +30,15 @@ const Login = () => {
       });
 
       if (error) {
-        toast.error("Gagal, " + error.message);
+        toast.error('Gagal, ' + error.message);
       } else {
-        toast.success("Berhasil");
-        redirect("Dashboard");
+        toast.success('Berhasil');
+
+        // Use 'router.push' for redirection
+        router.push('/me');
       }
     } catch (error) {
-      console.error("Error signing in:", error.message);
+      console.error('Error signing in:', error.message);
     } finally {
       setIsSubmit(false);
     }

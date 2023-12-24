@@ -1,0 +1,58 @@
+'use client'
+// pages/profile.js
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '../config/supabase';
+
+export default function UserProfile({ user }) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkCurrentUser = async () => {
+      // Dapatkan informasi sesi pengguna dari Supabase
+      const { data: session, error: sessionError } = await supabase.auth.getSession();
+  
+      if (sessionError) {
+        console.error('Gagal mendapatkan informasi sesi pengguna:', sessionError.message);
+        // Tangani kesalahan atau redirect jika diperlukan
+        return;
+      }
+  
+      // Jika tidak ada sesi pengguna, arahkan ke halaman login
+      if (!session) {
+        router.push('/login');
+        return;
+      }
+  
+      // Dapatkan informasi pengguna saat ini dari Supabase
+      const { data: currentUser, error: userError } = await supabase.auth.getUser();
+  
+      if (userError) {
+        console.error('Gagal mendapatkan informasi pengguna:', userError.message);
+        // Tangani kesalahan atau redirect jika diperlukan
+        return;
+      }
+  
+      console.log('Informasi Pengguna:', currentUser);
+  
+      // Periksa apakah email pengguna saat ini sama dengan "me"
+      if (currentUser.email === 'me') {
+        console.log('Email pengguna saat ini sesuai dengan "me".');
+        // Tampilkan informasi pengguna atau lakukan tindakan lain jika perlu
+      } else {
+        console.log('Email pengguna saat ini tidak sesuai dengan "me".');
+        // Redirect atau tampilkan pesan sesuai dengan kebutuhan
+        router.push('/login'); // Misalnya, arahkan ke halaman login jika tidak sesuai
+      }
+    };
+  
+    checkCurrentUser();
+  }, [router]);
+
+  return (
+    <div>
+      <h1>Profil Pengguna</h1>
+      {/* Tampilkan informasi pengguna atau konten lainnya */}
+    </div>
+  );
+}

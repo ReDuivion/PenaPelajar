@@ -25,7 +25,7 @@ export default function Header() {
 
   return (
     <>
-      <nav className=" max-w-full min-w-full shadow-sm">
+      <nav className=" max-w-full min-w-full shadow-xl">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
             <div className="text-lg font-bold text-purple-600 w-full">
