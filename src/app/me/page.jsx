@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation"; // Perhatikan penggunaan next/navigation
 import { supabase } from "../config/supabase.js";
+import SettingProfile from "../components/DrawerProfile/SettingProfile.jsx";
 
 const MePage = () => {
   const router = useRouter();
@@ -31,6 +32,8 @@ const MePage = () => {
   }, [router]);
 
   return (
+
+
     <div>
       {user ? (
         <div>
@@ -38,8 +41,11 @@ const MePage = () => {
         </div>
       ) : (
         <p>Loading...</p>
-      )}
+        )}
+
+      <SettingProfile/>
     </div>
+
   );
 };
 
