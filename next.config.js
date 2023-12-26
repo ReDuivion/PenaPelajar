@@ -5,7 +5,7 @@
 
 module.exports = {
   images: {
-    domains: ['images.unsplash.com', 'zerochan.net'],
+    domains: ['images.unsplash.com', 'zerochan.net', 'dummyimage.com'],
   },
     webpack(config) {
       config.module.rules.push({

@@ -1,20 +1,22 @@
-"use client";
+'use client'
+// Import statement seharusnya menggunakan 'supabase' bukan 'use client'
 import React, { useState, useEffect } from "react";
 import { supabase } from "../config/supabase";
 import Berhasil from "../components/Toast/Berhasil";
 import MainNavbar from "../components/MainNavbar";
 
-
 const AddRowForm = () => {
   const [updateNamaUser, setUpdatedNamaUser] = useState("");
   const [data, setData] = useState([]);
+  const [formDatas, setFormDatas] = useState({
+    nama_jurusan: "",
+  });
   const [formData, setFormData] = useState({
     nama_user: "",
     jenis_user: "",
   });
 
   const fetchData = async () => {
-
     try {
       const { data, error } = await supabase.from("profiles").select("*");
       if (error) {
@@ -44,25 +46,30 @@ const AddRowForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  async function updateData(id) {
-    try{
+  // Perbaikan pada fungsi handleJurusan
+  const handleJurusan = (e) => {
+    setFormDatas({ ...formDatas, [e.target.name]: e.target.value });
+  };
 
+  async function updateData(id) {
+    try {
       const { error } = await supabase
-      .from("profiles")
-      .update({ nama_user: updateNamaUser })
-      .eq("id", id);
-      
-      if(error) {
-        console.error("Error", error.message)
-      } else{
-        console.log("ROW DI UPDATE", updateNamaUser)
-        fetchData()
-        setUpdatedNamaUser("")
+        .from("profiles")
+        .update({ nama_user: updateNamaUser })
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error", error.message);
+      } else {
+        console.log("ROW DI UPDATE", updateNamaUser);
+        fetchData();
+        setUpdatedNamaUser("");
       }
-    } catch(error) {
-      console.error("error", error.message)
+    } catch (error) {
+      console.error("error", error.message);
     }
   }
+
   async function deletes(id) {
     try {
       const { error } = await supabase.from("profiles").delete().eq("id", id);
@@ -75,6 +82,27 @@ const AddRowForm = () => {
       }
     } catch (error) {
       console.error("error", error.message);
+    }
+  }
+
+  const submitJurusan = async (e) => {
+    e.preventDefault();
+
+    const tableNames = "jurusan";
+
+    try {
+      const { data, error } = await supabase.from(tableNames).insert([formDatas]);
+
+      if (error) {
+        console.error("ERROR INSERTING ROW", error.message);
+      } else {
+        console.log("ROW INSERTED SUCCESSFULLY", data);
+        setFormDatas({
+          nama_jurusan: "",
+        });
+      }
+    } catch (error) {
+      console.error('ERROR CATCH', error);
     }
   }
 
@@ -104,7 +132,19 @@ const AddRowForm = () => {
 
   return (
     <>
-    <Berhasil/>
+      <Berhasil />
+      <form onSubmit={submitJurusan}>
+        <label>
+          Jurusan:
+        </label>
+        <input
+          type="text"
+          name="nama_jurusan"
+          value={formDatas.nama_jurusan}
+          onChange={handleJurusan}
+        />
+        <button type="submit">Tambahkan Jurusan</button>
+      </form>
       <form onSubmit={handleSubmit}>
         <label>
           Nama User:
@@ -139,7 +179,7 @@ const AddRowForm = () => {
                 value={updateNamaUser}
                 onChange={(e) => setUpdatedNamaUser(e.target.value)}
               ></input>
-            <button onClick={() => updateData(item.id)}>Update</button>
+              <button onClick={() => updateData(item.id)}>Update</button>
             </li>
           ))}
         </ul>

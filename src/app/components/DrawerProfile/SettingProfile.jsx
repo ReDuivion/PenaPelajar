@@ -1,18 +1,16 @@
 "use client";
 
-import React from "react";
-
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCoffee,
   faGear,
   faUser,
   faUserGroup,
-  faMagnifyingGlass,
+  faSearch,
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { supabase } from "../../config/supabase"; // Sesuaikan dengan lokasi file konfigurasi Supabase
-import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function SettingProfile() {
@@ -56,33 +54,35 @@ export default function SettingProfile() {
         <ul className="menu p-4 w-80 min-h-full bg-white text-base-content border-r border-gray-300">
           {/* Sidebar content here */}
           <button className="btn btn-sm text-center">
-            <Link href="/me/edit"> Edit Profile</Link>
+            <Link href="/me/edit">Edit Profile</Link>
             <FontAwesomeIcon icon={faGear} className="1x" size="" />
           </button>
 
           <hr />
-          <hr />
+
           <div className="avatar mx-auto mt-6">
             <div className="w-24 rounded-full">
-              <img src="https://images4.alphacoders.com/127/1276963.png" />
+              <img src="https://images4.alphacoders.com/127/1276963.png" alt="Profile Avatar" />
             </div>
           </div>
           <h1 className="text-center text-xl mt-2 mb-4">{userEmail}</h1>
+
           <hr />
+
           <button className="btn btn-sm max-w-full">
-            <FontAwesomeIcon icon={faUser} className="" size="" />
+            <FontAwesomeIcon icon={faUser} className="mr-2" size="" />
             Profile
           </button>
           <button className="btn btn-sm max-w-full mt-2">
-            <FontAwesomeIcon icon={faUserGroup} className="" size="" />
+            <FontAwesomeIcon icon={faUserGroup} className="mr-2" size="" />
             Teman Saya
           </button>
           <button className="btn btn-sm max-w-full mt-2">
-            <FontAwesomeIcon icon={faMagnifyingGlass} className="" size="" />
+            <FontAwesomeIcon icon={faSearch} className="mr-2" size="" />
             History Komen
           </button>
           <button className="btn btn-sm max-w-full mt-2">
-            <FontAwesomeIcon icon={faPlus} className="" size="" />
+            <FontAwesomeIcon icon={faPlus} className="mr-2" size="" />
             Buat Postingan
           </button>
         </ul>

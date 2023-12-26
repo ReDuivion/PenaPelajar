@@ -41,12 +41,17 @@ export default function EditProfile() {
       try {
         const { data: jurusanData, error: jurusanError } = await supabase
           .from("jurusan")
-          .select("id, nama_jurusan");
+          .select("nama_jurusan");
 
         if (jurusanError) {
-          console.error("Error fetching jurusan options:", jurusanError.message);
+          console.error(
+            "Error fetching jurusan options:",
+            jurusanError.message
+          );
         } else {
-          setJurusanOptions(jurusanData);
+          // Extract the jurusan names from the fetched data
+          const jurusanNames = jurusanData.map((item) => item.nama_jurusan);
+          setJurusanOptions(jurusanNames);
         }
       } catch (error) {
         console.error("Error fetching jurusan options:", error.message);
@@ -96,28 +101,16 @@ export default function EditProfile() {
     if (userData.jenis_user !== "") {
       updatedFields.jenis_user = userData.jenis_user;
     }
-
     if (userData.jurusan !== "") {
-      // Find the selected jurusan object
-      const selectedJurusan = jurusanOptions.find(
-        (jurusan) => jurusan.nama_jurusan === userData.jurusan
-      );
-
-      // If the jurusan is found, update the jurusan_id
-      if (selectedJurusan) {
-        updatedFields.jurusan_id = selectedJurusan.id;
-      }
+      updatedFields.jurusan = userData.jurusan;
     }
-
     if (userData.kelas !== "") {
       updatedFields.kelas = userData.kelas;
     }
-
     if (userData.nama_user !== "") {
       updatedFields.nama_user = userData.nama_user;
     }
 
-    // Update user data in the "profiles" table
     const { error } = await supabase
       .from("profiles")
       .update(updatedFields)
@@ -130,7 +123,6 @@ export default function EditProfile() {
       router.push("/me");
     }
   };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUserData((prevData) => ({
@@ -192,8 +184,8 @@ export default function EditProfile() {
                   Pilih Jurusan
                 </option>
                 {jurusanOptions.map((option) => (
-                  <option key={option.id} value={option.nama_jurusan}>
-                    {option.nama_jurusan}
+                  <option key={option} value={option}>
+                    {option}
                   </option>
                 ))}
               </select>

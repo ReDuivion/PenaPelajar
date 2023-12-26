@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 8004",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 8004",
     "lint": "next lint"
   },
   "dependencies": {
@@ -20,6 +20,7 @@
     "@mui/material": "^5.15.1",
     "@nextui-org/react": "^2.2.9",
     "@supabase/supabase-js": "^2.39.1",
+    "antd": "^5.12.5",
     "axios": "^1.6.2",
     "boxicons": "^2.1.4",
     "daisyui": "^4.4.23",
