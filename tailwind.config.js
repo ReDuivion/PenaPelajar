@@ -47,10 +47,10 @@ module.exports = {
     },
   },
 
-  darkMode: "class",
-  plugins: [nextui()],
-  plugins: [require("daisyui")],
   daisyui: {
     themes: [""],
   },
+  darkMode: "class",
+  plugins: [nextui()],
+  plugins: [require("daisyui")],
 };
