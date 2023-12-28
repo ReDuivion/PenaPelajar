@@ -22,11 +22,12 @@ export default function Cardm() {
   }, []);
   return (
     <>
-      <div className="card ">
-        <div className="card-body shadow-xl">
+      <div className="card  ">
+        <div className="card-body shadow-xl bg-gradient-to-r from-indigo-300 to-purple-400 ">
           <h1>
+
             Pena Pelajar
-            <br />
+            <hr className=""/>
             <Typical
               loop={Infinity}
               wrapper="b"
