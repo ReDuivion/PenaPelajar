@@ -37,12 +37,12 @@ export default function SettingProfile() {
   }, []);
 
   return (
-    <div className="drawer drawer-end border border-gray-300">
+    <div className="drawer drawer-end">
       <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         {/* Page content here */}
         <label htmlFor="my-drawer-4" className="drawer-button btn btn-primary">
-          Open drawer
+          Lainnya
         </label>
       </div>
       <div className="drawer-side border-l border-gray-300">

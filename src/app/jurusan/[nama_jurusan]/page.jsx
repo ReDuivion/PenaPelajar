@@ -14,7 +14,7 @@ const JurusanDetail = () => {
       try {
         const { data, error } = await supabase
           .from('jurusan')
-          .select('id, nama_jurusan')
+          .select('id, nama_jurusan, detail')
           .eq('nama_jurusan', nama_jurusan)
           .single();
       
@@ -41,9 +41,12 @@ const JurusanDetail = () => {
   }
 
   return (
+    <>
     <div>
       <h1>Selamat datang di JURUSAN {jurusan?.nama_jurusan}</h1>
     </div>
+    <h1>{jurusan?.detail}</h1>
+    </>
   );
 };
 

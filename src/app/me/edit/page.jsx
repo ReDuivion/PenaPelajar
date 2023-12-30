@@ -1,9 +1,9 @@
-// pages/me/edit.jsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../config/supabase";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { v4 as uuidv4 } from "uuid";
 import {
   Button,
   Card,
@@ -32,11 +32,29 @@ export default function EditProfile() {
     jurusan: "",
     kelas: "",
     nama_user: "",
+    avatar: "",
   });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const router = useRouter();
 
+  async function uploadImage(file, folder) {
+    try {
+      const { data, error } = await supabase.storage
+        .from(folder)
+        .upload(file.name, file);
+
+      if (error) {
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error("Error Uploading Image", error.message);
+      throw error;
+    }
+  }
+
   useEffect(() => {
-    // Fetch data from the reference table
     const fetchJurusanOptions = async () => {
       try {
         const { data: jurusanData, error: jurusanError } = await supabase
@@ -44,7 +62,10 @@ export default function EditProfile() {
           .select("id, nama_jurusan");
 
         if (jurusanError) {
-          console.error("Error fetching jurusan options:", jurusanError.message);
+          console.error(
+            "Error fetching jurusan options:",
+            jurusanError.message
+          );
         } else {
           setJurusanOptions(jurusanData);
         }
@@ -55,7 +76,6 @@ export default function EditProfile() {
 
     fetchJurusanOptions();
   }, []);
-
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -68,16 +88,29 @@ export default function EditProfile() {
         } else {
           setUserEmail(user.email);
 
-          const { data: userData, error: userError } = await supabase
+          const { data, error } = await supabase
             .from("profiles")
             .select("*")
-            .eq("id", user.id)
+            .eq("email", user.email)
             .single();
+            console.log(data)
 
-          if (userError) {
-            console.error("Error fetching user data:", userError.message);
+          if (error) {
+            console.error("Error fetching user data:", error.message);
           } else {
-            setUserData(userData || {});
+            setUserData(data || {});
+            console.log(data)
+
+            const res = await supabase.storage
+              .from("gambar")
+              .getPublicUrl(data.avatar);
+
+            if (res.error) {
+              console.error("Error fetching avatar URL:", res.error.message);
+            } else {
+              setAvatarUrl(res.data.publicUrl);
+              console.log(data);
+            }
           }
         }
       } catch (error) {
@@ -88,10 +121,39 @@ export default function EditProfile() {
     fetchUserData();
   }, []);
 
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+
+    try {
+      const folder = "gambar";
+      const filename = `${uuidv4()}-${file.name}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(folder)
+        .upload(`${filename}`, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      setUserData((prevData) => ({
+        ...prevData,
+        avatar: filename,
+      }));
+
+      setAvatarUrl(uploadData.publicURL);
+    } catch (error) {
+      console.error("ERROR UPLOADING AVATAR", error.message);
+    }
+  };
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
     const updatedFields = {};
+
+    if (userData.avatar) {
+      updatedFields.avatar = userData.avatar;
+    }
 
     if (userData.jenis_user !== "") {
       updatedFields.jenis_user = userData.jenis_user;
@@ -127,7 +189,34 @@ export default function EditProfile() {
       console.error("Error updating user data:", error.message);
     } else {
       console.log("User data updated successfully");
-      router.push("/me");
+      const { data: updatedUserData, error: fetchUserError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("email", userEmail)
+        .single();
+
+      if (fetchUserError) {
+        console.error(
+          "Error fetching updated user data:",
+          fetchUserError.message
+        );
+      } else {
+        setUserData(updatedUserData || {});
+
+        const { data, error } = await supabase.storage
+          .from("gambar")
+          .getPublicUrl(updatedUserData.avatar);
+
+        if (error) {
+          console.error(
+            "Error fetching updated avatar URL:",
+            avatarError.message
+          );
+        } else {
+          setAvatarUrl(data.publicUrl);
+          console.log(data);
+        }
+      }
     }
   };
 
@@ -149,7 +238,11 @@ export default function EditProfile() {
           <hr />
           <div class="avatar">
             <div class="w-24 rounded-full mx-auto">
-              <img src="https://images4.alphacoders.com/127/1276963.png" />
+              <img
+                src={
+                  avatarUrl || "https://images4.alphacoders.com/127/1276963.png"
+                }
+              />
             </div>
           </div>
 
@@ -206,9 +299,14 @@ export default function EditProfile() {
                 onChange={handleInputChange}
                 className="input input-bordered w-full max-w-xs"
               />
-
+              <input
+                type="file"
+                name="avatar"
+                className="file-input file-input-bordered w-full max-w-xs"
+                onChange={handleAvatarChange}
+              />
               <Button
-                color="primary"
+                color="danger"
                 className="ml-20 mt-4"
                 variant="solid"
                 type="submit"
