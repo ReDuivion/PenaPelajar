@@ -16,6 +16,7 @@ import {
 } from "@nextui-org/react";
 import {
   faCoffee,
+  faBackward,
   faGear,
   faUser,
   faUserGroup,
@@ -33,6 +34,7 @@ export default function EditProfile() {
     kelas: "",
     nama_user: "",
     avatar: "",
+    motto: "",
   });
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
@@ -93,13 +95,13 @@ export default function EditProfile() {
             .select("*")
             .eq("email", user.email)
             .single();
-            console.log(data)
+          console.log(data);
 
           if (error) {
             console.error("Error fetching user data:", error.message);
           } else {
             setUserData(data || {});
-            console.log(data)
+            console.log(data);
 
             const res = await supabase.storage
               .from("gambar")
@@ -120,6 +122,81 @@ export default function EditProfile() {
 
     fetchUserData();
   }, []);
+
+  const insertProfile = async (fieldsToInsert) => {
+    try {
+      const { error } = await supabase.from("profiles").upsert({
+        ...fieldsToInsert,
+        email: userEmail,
+      });
+
+      if (error) {
+        console.error("Insert error", error.message);
+        return { success: false, error: error.message };
+      }
+
+      console.log("Profile inserted successfully");
+      return { success: true };
+    } catch (error) {
+      console.error("Error inserting profile", error.message);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const updateProfile = async (email, fieldsToUpdate) => {
+    try {
+      // Update profile
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update(fieldsToUpdate)
+        .eq("email", email);
+
+      if (updateError) {
+        console.error("Update error", updateError.message);
+        return { success: false, error: updateError.message };
+      }
+
+      console.log("Profile updated successfully");
+
+      // Fetch updated user data
+      const { data, error: fetchError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("email", email)
+        .single();
+
+      if (fetchError) {
+        console.error("Fetch user error", fetchError.message);
+        return { success: false, error: fetchError.message };
+      }
+
+      // Fetch updated avatar URL
+      const avatarRes = await supabase.storage
+        .from("gambar")
+        .getPublicUrl(data.avatar);
+
+      if (avatarRes.error) {
+        console.error(
+          "Error fetching updated avatar URL:",
+          avatarRes.error.message
+        );
+        return { success: false, error: avatarRes.error.message };
+      }
+
+      console.log("Avatar URL updated successfully");
+      return {
+        success: true,
+        updatedData: data,
+        updatedAvatarUrl: avatarRes.data.publicURL,
+      };
+    } catch (error) {
+      console.error(
+        "Error updating profile or fetching updated avatar URL:",
+        error.message
+      );
+      return { success: false, error: error.message };
+    }
+  };
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
@@ -175,50 +252,76 @@ export default function EditProfile() {
       updatedFields.kelas = userData.kelas;
     }
 
+    if (userData.motto !== "") {
+      updatedFields.motto = userData.motto;
+    }
+
     if (userData.nama_user !== "") {
       updatedFields.nama_user = userData.nama_user;
     }
 
-    // Update user data in the "profiles" table
-    const { error } = await supabase
-      .from("profiles")
-      .update(updatedFields)
-      .eq("email", userEmail);
+    try {
+      const { data: existingUserData, error: existingUserError } =
+        await supabase
+          .from("profiles")
+          .select("*")
+          .eq("email", userEmail)
+          .single();
 
-    if (error) {
-      console.error("Error updating user data:", error.message);
-    } else {
-      console.log("User data updated successfully");
-      const { data: updatedUserData, error: fetchUserError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("email", userEmail)
-        .single();
-
-      if (fetchUserError) {
+      if (existingUserError) {
         console.error(
-          "Error fetching updated user data:",
-          fetchUserError.message
+          "Error checking existing user:",
+          existingUserError.message
         );
+      }
+
+      if (existingUserData) {
+        // User exists, perform update
+        const updateResult = await updateProfile(userEmail, updatedFields);
+
+        if (updateResult.success) {
+          // Fetch updated user data
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("email", userEmail)
+            .single();
+
+          if (error) {
+            console.error("Fetch user error", error.message);
+          } else {
+            setUserData(data);
+
+            const res = await supabase.storage
+              .from("gambar")
+              .getPublicUrl(data.avatar);
+
+            if (res.error) {
+              console.error("Error fetching avatar URL:", res.error.message);
+            } else {
+              setAvatarUrl(res.data.publicUrl);
+              console.log(data);
+            }
+          }
+        }
       } else {
-        setUserData(updatedUserData || {});
+        // User does not exist, perform insert
+        const insertResult = await insertProfile(updatedFields);
 
-        const { data, error } = await supabase.storage
-          .from("gambar")
-          .getPublicUrl(updatedUserData.avatar);
-
-        if (error) {
-          console.error(
-            "Error fetching updated avatar URL:",
-            avatarError.message
-          );
-        } else {
-          setAvatarUrl(data.publicUrl);
-          console.log(data);
+        if (insertResult.success) {
+          // Optionally, you can perform additional actions after successful insert
         }
       }
+    } catch (error) {
+      console.error(
+        "Error checking existing user or updating/inserting profile:",
+        error.message
+      );
     }
+
+    window.location.reload;
   };
+  // Update user data in the "profiles" table
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -230,14 +333,19 @@ export default function EditProfile() {
 
   return (
     <div>
-      <div class="card w-96 bg-base-100 shadow-xl mx-auto ">
-        <div class="card-body">
-          <h2 class="card-title mx-auto">
+      <div className="card w-96 bg-base-100 shadow-xl mx-auto ">
+        <div className="card-body">
+          <h2 className="card-title mx-auto">
             Edit Profile <FontAwesomeIcon icon={faPenToSquare} />
           </h2>
           <hr />
-          <div class="avatar">
-            <div class="w-24 rounded-full mx-auto">
+          <div className="relative">
+            <Button color="" className="bg-green-600 text-white" onPress={() => router.push("/me")}>
+              <FontAwesomeIcon icon={faBackward}/>
+            </Button>
+          </div>
+          <div className="avatar">
+            <div className="w-24 rounded-full mx-auto">
               <img
                 src={
                   avatarUrl || "https://images4.alphacoders.com/127/1276963.png"
@@ -247,7 +355,7 @@ export default function EditProfile() {
           </div>
 
           <p className="text-center">{userEmail}</p>
-          <div class="card-actions justify-end">
+          <div className="card-actions justify-end">
             <form onSubmit={handleFormSubmit}>
               <h1>Nama User:</h1>
               <input
@@ -299,6 +407,15 @@ export default function EditProfile() {
                 onChange={handleInputChange}
                 className="input input-bordered w-full max-w-xs"
               />
+              <h1>Motto Hidup</h1>
+              <input
+                type="text"
+                name="motto"
+                value={userData.motto}
+                onChange={handleInputChange}
+                className="input input-bordered w-full max-w-xs"
+              />
+              <h1>Photo Profile</h1>
               <input
                 type="file"
                 name="avatar"

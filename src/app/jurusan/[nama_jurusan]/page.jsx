@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { supabase } from '../../config/supabase';
+import { Suspense } from 'react';
 
 const JurusanDetail = () => {
   const { nama_jurusan } = useParams();
@@ -22,6 +23,7 @@ const JurusanDetail = () => {
           throw error;
         }
       
+
         setJurusan(data);
         setIsLoading(false);
         document.title = `JURUSAN ${data.nama_jurusan}`;
@@ -42,10 +44,13 @@ const JurusanDetail = () => {
 
   return (
     <>
+      <Suspense fallback={<p>Loading Page</p>}>
     <div>
+
       <h1>Selamat datang di JURUSAN {jurusan?.nama_jurusan}</h1>
     </div>
     <h1>{jurusan?.detail}</h1>
+      </Suspense>
     </>
   );
 };

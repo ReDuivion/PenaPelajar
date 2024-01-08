@@ -32,7 +32,7 @@ export default function Profile() {
           />
         </div>
         <div className="card-body items-center text-center">
-          <h2 className="card-title">qaiduljaisy@gmail.com</h2>
+          <h2 className="card-title"></h2>
           <p>motto Lorem ipsum dolor sit amet.</p>
           <hr />
           <div className="card-actions max-w-full ">

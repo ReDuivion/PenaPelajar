@@ -15,6 +15,8 @@ import Link from "next/link";
 
 export default function SettingProfile() {
   const [userEmail, setUserEmail] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     const fetchUserEmail = async () => {
@@ -27,6 +29,31 @@ export default function SettingProfile() {
           console.error("Error fetching user:", error.message);
         } else {
           setUserEmail(user.email);
+
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("email", user.email)
+            .single();
+          console.log(data);
+
+          if (error) {
+            console.error("Error fetching user data:", error.message);
+          } else {
+            setUserData(data || {});
+            console.log(data);
+
+            const res = await supabase.storage
+              .from("gambar")
+              .getPublicUrl(data.avatar);
+
+            if (res.error) {
+              console.error("Error fetching avatar URL:", res.error.message);
+            } else {
+              setAvatarUrl(res.data.publicUrl);
+              console.log(res.data);
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching user:", error.message);
@@ -62,7 +89,7 @@ export default function SettingProfile() {
 
           <div className="avatar mx-auto mt-6">
             <div className="w-24 rounded-full">
-              <img src="https://images4.alphacoders.com/127/1276963.png" alt="Profile Avatar" />
+              <img src={avatarUrl} alt="Profile Avatar" />
             </div>
           </div>
           <h1 className="text-center text-xl mt-2 mb-4">{userEmail}</h1>

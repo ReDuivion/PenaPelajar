@@ -14,7 +14,7 @@ const page = () => {
 
       <JurusanCard />
 
-      {/* Sisipkan konten lainnya di sini */}
+
     </div>
   );
 };

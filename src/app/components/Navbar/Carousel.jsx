@@ -35,12 +35,6 @@ const Carousels = () => (
           <h1 className="text-2xl text-gray-100 mb-4">
             Sebuah Aplikasi Website yang diperuntukkan untuk siswa sebagai
             tujuan
-            <br />
-            <h2>
-              Untuk Sharing serta memperkenalkan siswa siswi SMKN 7 BALEENDAH Di
-              <br />
-              <a>Aplikasi Kita</a>
-            </h2>
           </h1>
         </div>
         <button className="btn text-white">Get Started</button>
