@@ -8,7 +8,7 @@ import SettingProfile from "../components/DrawerProfile/SettingProfile.jsx";
 import Navbars from "../components/Navbar/Navbars.jsx";
 import Profile from "../components/me/Profile.jsx";
 import Image from "next/image";
-
+import gambar from "../assets/558877.jpg"
 const MePage = () => {
   const router = useRouter();
   const [user, setUser] = useState(null);
@@ -111,7 +111,7 @@ const MePage = () => {
             <div className="flex items-center justify-center p-6 md:p-8">
               <div className="relative w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-full">
                 <Image
-                  src={avatarUrl || "/placeholder-avatar.png"}
+                  src={avatarUrl || gambar}
                   alt="Avatar"
                   layout="fill"
                   objectFit="cover"
